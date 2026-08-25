@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ballantine BOM</title>
+<style>
+  :root{
+    --bg:#f5f1e8;
+    --panel:#ffffff;
+    --panel-2:#faf7ef;
+    --border:#e2dac4;
+    --border-soft:#ece5d2;
+    --text:#241f18;
+    --text-dim:#736b57;
+    --text-faint:#a89c81;
+    --accent:#a02328;
+    --accent-soft:#f1d9d5;
+    --accent-dim:#d8bdb8;
+    --topbar-bg:#1c1712;
+    --topbar-text:#f5efe2;
+    --amber:#a9721e;
+    --red:#a02328;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: "Helvetica Neue", Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);height:100%;}
+  #root{min-height:100vh;display:flex;flex-direction:column;}
+
+  /* ---- top bar ---- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 24px;border-bottom:1px solid #000;
+    background:var(--topbar-bg);color:var(--topbar-text);
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:44px;height:44px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand-mark img{width:100%;height:100%;object-fit:contain;display:block;}
+  .brand-text{display:flex;flex-direction:column;line-height:1.25;}
+  .brand-name{font-weight:700;letter-spacing:0.01em;font-size:16px;color:var(--topbar-text);}
+  .brand-sub{font-size:10px;color:#9a8d72;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;}
+  .tabs{
+    display:flex;gap:4px;padding:4px;margin-left:8px;
+    background:#141110;border:1px solid #34291f;border-radius:9px;
+  }
+  .tab{
+    padding:7px 16px;font-size:12px;color:#b8ac95;cursor:pointer;
+    border:1px solid transparent;border-radius:6px;font-weight:700;
+    letter-spacing:0.05em;text-transform:uppercase;
+  }
+  .tab.active{color:var(--accent);border-color:var(--accent);background:rgba(160,35,40,0.1);}
+  .tab:hover{color:#fff;}
+  .user-chip{display:flex;align-items:center;gap:10px;font-size:12.5px;color:#c9bfa8;}
+  .btn-ghost{
+    background:transparent;border:1px solid #4a4033;color:#d8cdb6;
+    padding:5px 10px;border-radius:5px;font-size:12px;cursor:pointer;font-family:var(--sans);
+  }
+  .btn-ghost:hover{border-color:#8a7c5f;color:#fff;}
+  .btn-outline{
+    background:transparent;border:1px solid var(--border);color:var(--text-dim);
+    padding:8px 14px;border-radius:5px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);
+  }
+  .btn-outline:hover{border-color:var(--text-faint);color:var(--text);}
+
+  main{flex:1;padding:26px 30px;max-width:1180px;width:100%;margin:0 auto;}
+
+  /* ---- auth screen ---- */
+  .auth-wrap{
+    height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;
+    background:var(--bg);
+  }
+  .auth-card{
+    width:340px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:26px 26px 22px;
+    box-shadow:0 1px 3px rgba(36,31,24,0.06);
+  }
+  .auth-title{font-size:16px;font-weight:700;margin-bottom:2px;}
+  .auth-sub{font-size:12.5px;color:var(--text-faint);margin-bottom:20px;}
+  label{display:block;font-size:10.5px;color:var(--text-dim);margin-bottom:5px;margin-top:14px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;}
+  input[type=text],input[type=email],input[type=password],input[type=number],textarea,select{
+    width:100%;background:#fff;border:1px solid var(--border);color:var(--text);
+    padding:8px 10px;border-radius:5px;font-size:13.5px;font-family:var(--sans);outline:none;
+  }
+  input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+  .btn-primary{
+    width:100%;margin-top:20px;background:var(--accent);color:#fff;border:none;
+    padding:9px 12px;border-radius:5px;font-weight:700;font-size:13.5px;cursor:pointer;letter-spacing:0.01em;
+  }
+  .btn-primary:hover{opacity:0.9;}
+  .btn-primary:disabled{opacity:0.5;cursor:default;}
+  .auth-toggle{text-align:center;font-size:12.5px;color:var(--text-faint);margin-top:16px;cursor:pointer;}
+  .auth-toggle span{color:var(--accent);font-weight:600;}
+  .auth-error{background:#fbeceb;border:1px solid #eecac8;color:var(--red);
+    font-size:12px;padding:8px 10px;border-radius:5px;margin-top:14px;}
+  .auth-note{background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);
+    font-size:11.5px;padding:8px 10px;border-radius:5px;margin-top:14px;line-height:1.5;}
+
+  /* ---- generic ---- */
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .section-title{font-size:20px;font-weight:700;letter-spacing:-0.01em;}
+  .section-count{font-size:12px;color:var(--text-faint);margin-left:8px;font-weight:500;}
+  .btn-add{
+    background:var(--accent);border:1px solid var(--accent);color:#fff;
+    padding:8px 14px;border-radius:5px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--sans);
+  }
+  .btn-add:hover{opacity:0.9;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;font-size:10.5px;color:var(--text-faint);
+    text-transform:uppercase;letter-spacing:0.07em;padding:8px 10px;border-bottom:1.5px solid var(--text);
+    font-weight:700;
+  }
+  tbody td{padding:10px 10px;border-bottom:1px solid var(--border-soft);color:var(--text);}
+  tbody tr:hover{background:var(--panel-2);}
+  .mono{font-family:var(--mono);}
+  .dim{color:var(--text-dim);}
+  .faint{color:var(--text-faint);}
+  .num{text-align:right;font-variant-numeric:tabular-nums;}
+  .row-actions{display:flex;gap:6px;opacity:0;transition:opacity 0.1s;}
+  tr:hover .row-actions{opacity:1;}
+  .icon-btn{
+    background:transparent;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;padding:2px 5px;font-weight:600;
+  }
+  .icon-btn:hover{color:var(--accent);}
+  .icon-btn.danger:hover{color:var(--red);}
+
+  .empty{
+    padding:50px 20px;text-align:center;color:var(--text-faint);font-size:13px;
+    border:1px dashed var(--border);border-radius:6px;background:var(--panel);
+  }
+  .empty b{color:var(--text-dim);display:block;margin-bottom:4px;font-weight:700;}
+
+  /* ---- modal ---- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(28,23,18,0.45);display:flex;align-items:center;justify-content:center;z-index:50;
+  }
+  .modal{
+    width:400px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:22px;
+    max-height:85vh;overflow:auto;box-shadow:0 8px 24px rgba(28,23,18,0.18);
+  }
+  .modal-title{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .modal-actions{display:flex;gap:8px;margin-top:20px;}
+  .btn-secondary{
+    flex:1;background:transparent;border:1px solid var(--border);color:var(--text-dim);
+    padding:8px 12px;border-radius:5px;font-size:13px;cursor:pointer;font-family:var(--sans);font-weight:600;
+  }
+  .btn-secondary:hover{color:var(--text);border-color:var(--text-faint);}
+  .modal .btn-primary{margin-top:0;flex:1.4;}
+  .field-row{display:flex;gap:10px;}
+  .field-row > div{flex:1;}
+
+  /* ---- BOM list ---- */
+  .bom-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:14px 16px;
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;
+  }
+  .bom-card:hover{border-color:var(--accent);}
+  .bom-name{font-weight:700;font-size:13.5px;}
+  .bom-meta{font-size:11px;color:var(--text-faint);margin-top:3px;font-weight:500;letter-spacing:0.02em;}
+  .status-pill{
+    font-size:10px;text-transform:uppercase;letter-spacing:0.06em;font-weight:700;
+    padding:3px 9px;border-radius:20px;border:1px solid var(--border);
+  }
+  .status-draft{color:var(--text-dim);}
+  .status-released{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-soft);}
+  .status-obsolete{color:var(--text-faint);}
+
+  /* ---- BOM detail / tree ---- */
+  .back-link{
+    color:var(--text-faint);font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-bottom:14px;font-weight:600;
+  }
+  .back-link:hover{color:var(--accent);}
+  .bom-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .bom-title{font-size:20px;font-weight:700;letter-spacing:-0.01em;}
+  .bom-sub{font-size:11.5px;color:var(--text-faint);margin-top:4px;font-weight:500;}
+  .totals{
+    display:flex;gap:22px;background:var(--panel);border:1px solid var(--border);border-radius:6px;
+    padding:12px 18px;margin-bottom:18px;
+  }
+  .total-item .t-label{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;}
+  .total-item .t-value{font-size:17px;color:var(--accent);margin-top:2px;font-weight:700;}
+
+  .tree-wrap{background:var(--panel);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .tree-header{
+    display:flex;align-items:center;padding:8px 12px 8px 42px;gap:8px;
+    border-bottom:1.5px solid var(--text);background:var(--panel-2);
+  }
+  .tree-header span{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;}
+  .th-pn{min-width:90px;flex-shrink:0;}
+  .th-desc{flex:1;}
+  .th-ref{width:56px;flex-shrink:0;}
+  .th-vendor{width:78px;flex-shrink:0;}
+  .th-qty{width:70px;flex-shrink:0;text-align:right;}
+  .th-cost{width:80px;flex-shrink:0;text-align:right;}
+  .th-actions{width:96px;flex-shrink:0;}
+
+  .vendor-toggle{
+    width:78px;flex-shrink:0;background:transparent;border:none;color:var(--accent);
+    font-size:11px;font-weight:600;cursor:pointer;text-align:left;padding:0;
+  }
+  .vendor-toggle:hover{text-decoration:underline;}
+  .vendor-toggle-spacer{width:78px;flex-shrink:0;}
+  .notes-row{
+    padding:7px 12px 7px;font-size:11.5px;color:var(--text-dim);background:var(--panel-2);
+    border-bottom:1px solid var(--border-soft);line-height:1.5;
+  }
+
+  .tree-row{
+    display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--border-soft);gap:8px;font-size:13px;
+  }
+  .tree-row:last-child{border-bottom:none;}
+  .tree-row:hover{background:var(--panel-2);}
+  .tree-toggle{
+    width:16px;height:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    color:var(--text-faint);font-size:10px;flex-shrink:0;
+  }
+  .tree-toggle.leaf{visibility:hidden;}
+  .tree-pn{font-weight:700;color:var(--accent);font-size:12.5px;flex-shrink:0;min-width:90px;}
+  .tree-desc{flex:1;color:var(--text);}
+  .tree-ref{font-size:11px;color:var(--text-faint);font-weight:600;width:56px;flex-shrink:0;}
+  .tree-qty{font-size:12.5px;color:var(--text-dim);width:70px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;}
+  .tree-cost{font-size:12.5px;color:var(--text);width:80px;text-align:right;flex-shrink:0;font-weight:600;font-variant-numeric:tabular-nums;}
+  .tree-actions{display:flex;gap:4px;opacity:0;flex-shrink:0;}
+  .tree-row:hover .tree-actions{opacity:1;}
+
+  .add-line-btn{
+    padding:9px 12px;font-size:12px;color:var(--text-faint);cursor:pointer;font-weight:600;
+    border-top:1px dashed var(--border-soft);
+  }
+  .add-line-btn:hover{color:var(--accent);background:var(--panel-2);}
+
+  ::placeholder{color:var(--text-faint);}
+  .loading{padding:60px;text-align:center;color:var(--text-faint);font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="module">
+// Minimal fetch-based Supabase client (no external SDK — the artifact sandbox
+// only allows <script> loads from cdnjs.cloudflare.com, and the Supabase SDK
+// isn't hosted there, so we talk to the REST/Auth API directly instead).
+
+const LOGO_MARK = 'data:image/png;base64,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';
+const LOGO_FULL = 'data:image/png;base64,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';
+const SUPABASE_URL = 'https://dqykgafubwxqmoheaemd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxeWtnYWZ1Ynd4cW1vaGVhZW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY4MjMsImV4cCI6MjEwMjE0MjgyM30.4IpLWL1ojhZzx5mL7tH-C7T8eQ8lpYADd9PSvg0W90w';
+
+let currentSession = null; // {access_token, refresh_token, user}
+
+function authHeaders(extra){
+  return {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer ' + (currentSession?.access_token || SUPABASE_ANON_KEY),
+    'Content-Type': 'application/json',
+    ...(extra||{}),
+  };
+}
+
+async function restRequest(path, opts={}){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opts,
+    headers: { ...authHeaders(opts.prefer ? {Prefer: opts.prefer} : {}), ...(opts.headers||{}) },
+  });
+  if(!res.ok){
+    let msg = res.statusText;
+    try{ const j = await res.json(); msg = j.message || j.msg || msg; }catch(e){}
+    throw new Error(msg);
+  }
+  if(res.status === 204) return null;
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function authRequest(path, body){
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json().catch(()=>({}));
+  if(!res.ok){
+    throw new Error(json.error_description || json.msg || json.error || 'Authentication failed');
+  }
+  return json;
+}
+
+const supabase = {
+  auth: {
+    async signUp({email, password}){
+      try{
+        const data = await authRequest('signup', {email, password});
+        if(data.access_token){ currentSession = {access_token:data.access_token, refresh_token:data.refresh_token, user:data.user}; }
+        return {data: {session: currentSession, user: data.user}, error:null};
+      }catch(e){ return {data:null, error:{message:e.message}}; }
+    },
+    async signInWithPassword({email, password}){
+      try{
+        const data = await authRequest('token?grant_type=password', {email, password});
+        currentSession = {access_token:data.access_token, refresh_token:data.refresh_token, user:data.user};
+        return {data: {session: currentSession, user: data.user}, error:null};
+      }catch(e){ return {data:null, error:{message:e.message}}; }
+    },
+    async signOut(){
+      currentSession = null;
+      return {error:null};
+    },
+    async getSession(){
+      return {data:{session: currentSession}};
+    },
+    onAuthStateChange(){
+      // no-op: this minimal client doesn't persist sessions across reload
+      // (artifacts can't use localStorage), so there's nothing to listen for.
+      return {data:{subscription:{unsubscribe(){}}}};
+    },
+  },
+  from(table){
+    return {
+      select(cols='*'){
+        const params = new URLSearchParams({select: cols});
+        const builder = {
+          _filters: [],
+          _order: null,
+          eq(col, val){ builder._filters.push(`${col}=eq.${encodeURIComponent(val)}`); return builder; },
+          order(col, {ascending=true}={}){ builder._order = `${col}.${ascending?'asc':'desc'}`; return builder; },
+          async then(resolve, reject){
+            try{
+              let qs = params.toString();
+              if(builder._filters.length) qs += '&' + builder._filters.join('&');
+              if(builder._order) qs += `&order=${builder._order}`;
+              const data = await restRequest(`${table}?${qs}`, {method:'GET'});
+              resolve({data, error:null});
+            }catch(e){ resolve({data:null, error:{message:e.message}}); }
+          },
+          single(){
+            const p = builder.then.bind(builder);
+            return { then(resolve,reject){ p((r)=>resolve({data:r.data?.[0]||null, error:r.error}), reject); } };
+          },
+        };
+        return builder;
+      },
+      insert(payload){
+        const exec = async () => {
+          try{
+            const data = await restRequest(table, {method:'POST', body:JSON.stringify(payload), prefer:'return=representation'});
+            return {data, error:null};
+          }catch(e){ return {data:null, error:{message:e.message}}; }
+        };
+        return {
+          then(resolve){ exec().then(resolve); },
+          select(){
+            return {
+              single: async () => {
+                const r = await exec();
+                return {data: r.data?.[0]||null, error:r.error};
+              },
+            };
+          },
+        };
+      },
+      update(payload){
+        return {
+          eq: async (col, val) => {
+            try{
+              const data = await restRequest(`${table}?${col}=eq.${encodeURIComponent(val)}`, {method:'PATCH', body:JSON.stringify(payload), prefer:'return=representation'});
+              return {data, error:null};
+            }catch(e){ return {data:null, error:{message:e.message}}; }
+          },
+        };
+      },
+      delete(){
+        return {
+          eq: async (col, val) => {
+            try{
+              await restRequest(`${table}?${col}=eq.${encodeURIComponent(val)}`, {method:'DELETE'});
+              return {error:null};
+            }catch(e){ return {error:{message:e.message}}; }
+          },
+        };
+      },
+    };
+  },
+};
+
+const root = document.getElementById('root');
+let state = {
+  session: null,
+  authMode: 'login', // 'login' | 'signup'
+  authError: '',
+  authLoading: false,
+  view: 'boms', // 'parts' | 'vendors' | 'boms' | 'bomDetail'
+  parts: [],
+  boms: [],
+  vendors: [],
+  manufacturers: [],
+  partVendorLinks: [], // for the active BOM's parts, loaded on demand per line
+  activeBomId: null,
+  bomItems: [], // flat list for active bom
+  expanded: {}, // item id -> bool
+  notesOpen: {}, // item id -> bool (vendor/mfgr info visibility)
+  lineVendorInfo: {}, // item id -> {vendors:[], manufacturers:[], substitutes:[]}
+  modal: null, // {type: 'part'|'bom'|'line'|'vendor', data:{}, editingId}
+  loading: true,
+};
+
+function setState(patch){ state = {...state, ...patch}; render(); }
+
+// ---------- data loading ----------
+async function loadAll(){
+  setState({loading:true});
+  const [{data:parts}, {data:boms}, {data:vendors}, {data:manufacturers}] = await Promise.all([
+    supabase.from('parts').select('*').order('part_number'),
+    supabase.from('boms').select('*').order('created_at', {ascending:false}),
+    supabase.from('vendors').select('*').order('name'),
+    supabase.from('manufacturers').select('*').order('name'),
+  ]);
+  setState({parts: parts||[], boms: boms||[], vendors: vendors||[], manufacturers: manufacturers||[], loading:false});
+}
+
+async function loadBomItems(bomId){
+  const {data} = await supabase.from('bom_items').select('*, parts(*)').eq('bom_id', bomId).order('sort_order');
+  setState({bomItems: data||[]});
+}
+
+async function loadPartVendorInfo(itemId, partId){
+  const [{data:pv}, {data:pm}, {data:ps}] = await Promise.all([
+    supabase.from('part_vendors').select('*, vendors(*)').eq('part_id', partId),
+    supabase.from('part_manufacturers').select('*, manufacturers(*)').eq('part_id', partId),
+    supabase.from('part_substitutes').select('*').eq('part_id', partId),
+  ]);
+  setState({lineVendorInfo: {...state.lineVendorInfo, [itemId]: {
+    vendors: pv||[], manufacturers: pm||[], substitutes: ps||[]
+  }}});
+}
+
+// ---------- auth ----------
+supabase.auth.getSession().then(({data})=>{
+  setState({session: data.session});
+  if(data.session) loadAll();
+});
+supabase.auth.onAuthStateChange((_event, session)=>{
+  setState({session});
+  if(session) loadAll();
+});
+
+async function handleAuthSubmit(email, password){
+  setState({authLoading:true, authError:''});
+  if(state.authMode === 'login'){
+    const {data, error} = await supabase.auth.signInWithPassword({email, password});
+    if(error) setState({authError: error.message, authLoading:false});
+    else {
+      setState({authLoading:false, session: data.session});
+      loadAll();
+    }
+  } else {
+    const {data, error} = await supabase.auth.signUp({email, password});
+    if(error) setState({authError: error.message, authLoading:false});
+    else if(data.session){
+      // Email confirmation is off — session is active immediately.
+      setState({authLoading:false, session: data.session});
+      loadAll();
+    } else {
+      // Email confirmation required — no session yet.
+      setState({authLoading:false, authError:'__signup_ok__'});
+    }
+  }
+}
+
+async function handleLogout(){
+  await supabase.auth.signOut();
+  setState({view:'boms', activeBomId:null, parts:[], boms:[]});
+}
+
+// ---------- parts CRUD ----------
+async function savePart(data, editingId){
+  const payload = {
+    part_number: data.part_number.trim(),
+    description: data.description.trim(),
+    unit_cost: parseFloat(data.unit_cost) || 0,
+    unit_of_measure: data.unit_of_measure.trim() || 'EA',
+    supplier: data.supplier.trim(),
+    notes: data.notes.trim(),
+  };
+  if(editingId){
+    await supabase.from('parts').update(payload).eq('id', editingId);
+  } else {
+    await supabase.from('parts').insert(payload);
+  }
+  setState({modal:null});
+  loadAll();
+}
+
+async function deletePart(id){
+  if(!confirm('Delete this part? This cannot be undone.')) return;
+  await supabase.from('parts').delete().eq('id', id);
+  loadAll();
+}
+
+// ---------- vendor CRUD ----------
+async function saveVendor(data, editingId){
+  const payload = {
+    vendor_code: data.vendor_code.trim(),
+    name: data.name.trim(),
+    contact_info: data.contact_info.trim(),
+    notes: data.notes.trim(),
+  };
+  if(editingId){
+    await supabase.from('vendors').update(payload).eq('id', editingId);
+  } else {
+    await supabase.from('vendors').insert(payload);
+  }
+  setState({modal:null});
+  loadAll();
+}
+
+async function deleteVendor(id){
+  if(!confirm('Delete this vendor? Any parts linked to it will lose that link.')) return;
+  await supabase.from('vendors').delete().eq('id', id);
+  loadAll();
+}
+
+// ---------- BOM CRUD ----------
+async function saveBom(data, editingId){
+  const payload = {
+    name: data.name.trim(),
+    product_number: data.product_number.trim(),
+    revision: data.revision.trim() || 'A',
+    status: data.status || 'draft',
+    notes: data.notes.trim(),
+  };
+  if(editingId){
+    await supabase.from('boms').update(payload).eq('id', editingId);
+  } else {
+    const {data:inserted} = await supabase.from('boms').insert(payload).select().single();
+    setState({modal:null});
+    await loadAll();
+    if(inserted) openBom(inserted.id);
+    return;
+  }
+  setState({modal:null});
+  loadAll();
+}
+
+async function deleteBom(id, e){
+  e && e.stopPropagation();
+  if(!confirm('Delete this BOM and all its line items? This cannot be undone.')) return;
+  await supabase.from('boms').delete().eq('id', id);
+  loadAll();
+}
+
+function openBom(id){
+  setState({view:'bomDetail', activeBomId:id, expanded:{}});
+  loadBomItems(id);
+}
+
+// ---------- line items CRUD ----------
+async function saveLine(data, editingId){
+  const parsedQty = parseFloat(data.quantity);
+  const payload = {
+    bom_id: state.activeBomId,
+    parent_item_id: data.parent_item_id || null,
+    part_id: data.part_id,
+    quantity: Number.isFinite(parsedQty) ? parsedQty : 1,
+    reference_designator: data.reference_designator.trim(),
+    notes: (data.notes||'').trim(),
+  };
+  if(editingId){
+    delete payload.bom_id; delete payload.parent_item_id;
+    await supabase.from('bom_items').update(payload).eq('id', editingId);
+  } else {
+    await supabase.from('bom_items').insert(payload);
+  }
+  setState({modal:null});
+  loadBomItems(state.activeBomId);
+}
+
+async function deleteLine(id){
+  if(!confirm('Delete this line item and any nested sub-items?')) return;
+  await supabase.from('bom_items').delete().eq('id', id);
+  loadBomItems(state.activeBomId);
+}
+
+// ---------- helpers ----------
+function fmtMoney(n){ return '$' + (Number(n)||0).toFixed(2); }
+
+function buildTree(items){
+  const byParent = {};
+  items.forEach(it=>{
+    const key = it.parent_item_id || 'root';
+    (byParent[key] = byParent[key] || []).push(it);
+  });
+  return byParent;
+}
+
+function lineExtended(item, byParent){
+  // extended cost = own part cost*qty + sum of children's extended (children qty already relative to parent's 1 unit)
+  const own = (item.parts?.unit_cost || 0) * item.quantity;
+  const kids = byParent[item.id] || [];
+  const kidsCost = kids.reduce((sum,k)=> sum + lineExtended(k, byParent) * item.quantity, 0);
+  return own + kidsCost;
+}
+
+// ---------- render ----------
+function render(){
+  // Overlays are appended to <body>, outside #root, so they must be
+  // cleaned up explicitly on every render or a closed modal leaves a
+  // stuck, invisible-click-blocking layer behind.
+  document.querySelectorAll('.overlay').forEach(el => el.remove());
+
+  if(!state.session){
+    renderAuth();
+    return;
+  }
+  renderApp();
+}
+
+function renderAuth(){
+  const isSignup = state.authMode === 'signup';
+  root.innerHTML = `
+    <div class="auth-wrap">
+      <div style="display:flex;align-items:center;">
+        <img src="${LOGO_FULL}" alt="Ballantine Laboratories, Inc." style="height:38px;" />
+      </div>
+      <div class="auth-card">
+        <div class="auth-title">${isSignup ? 'Create an account' : 'Sign in'}</div>
+        <div class="auth-sub">/// internal access only</div>
+        <form id="auth-form">
+          <label>Email</label>
+          <input type="email" id="auth-email" required autocomplete="email" />
+          <label>Password</label>
+          <input type="password" id="auth-password" required autocomplete="${isSignup?'new-password':'current-password'}" minlength="6" />
+          <button class="btn-primary" type="submit" ${state.authLoading?'disabled':''}>${state.authLoading ? 'Working…' : (isSignup ? 'Create account' : 'Sign in')}</button>
+        </form>
+        ${state.authError === '__signup_ok__' ? `<div class="auth-note">Account created. If email confirmation is required, check your inbox before signing in.</div>` : ''}
+        ${state.authError && state.authError !== '__signup_ok__' ? `<div class="auth-error">${escapeHtml(state.authError)}</div>` : ''}
+        <div class="auth-toggle" id="auth-toggle">
+          ${isSignup ? 'Already have an account? <span>Sign in</span>' : "Need an account? <span>Create one</span>"}
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('auth-form').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    handleAuthSubmit(email, password);
+  });
+  document.getElementById('auth-toggle').addEventListener('click', ()=>{
+    setState({authMode: isSignup ? 'login' : 'signup', authError:''});
+  });
+}
+
+function renderApp(){
+  root.innerHTML = `
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark"><img src="${LOGO_MARK}" alt="Ballantine" /></div>
+        <div class="brand-text">
+          <div class="brand-name">Ballantine Laboratories</div>
+          <div class="brand-sub">BOM System</div>
+        </div>
+        <div class="tabs">
+          <div class="tab ${state.view==='boms'||state.view==='bomDetail' ? 'active':''}" data-tab="boms">BOMs</div>
+          <div class="tab ${state.view==='parts' ? 'active':''}" data-tab="parts">Parts Library</div>
+          <div class="tab ${state.view==='vendors' ? 'active':''}" data-tab="vendors">Vendors</div>
+        </div>
+      </div>
+      <div class="user-chip">
+        <span class="mono">${escapeHtml(state.session.user.email)}</span>
+        <button class="btn-ghost" id="logout-btn">Sign out</button>
+      </div>
+    </div>
+    <main id="main"></main>
+  `;
+  document.querySelectorAll('.tab').forEach(el=>{
+    el.addEventListener('click', ()=> setState({view: el.dataset.tab}));
+  });
+  document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+  const main = document.getElementById('main');
+  if(state.loading){
+    main.innerHTML = `<div class="loading">LOADING…</div>`;
+  } else if(state.view === 'parts'){
+    renderParts(main);
+  } else if(state.view === 'vendors'){
+    renderVendors(main);
+  } else if(state.view === 'bomDetail'){
+    renderBomDetail(main);
+  } else {
+    renderBomsList(main);
+  }
+  if(state.modal) renderModal();
+}
+
+function renderParts(main){
+  const rows = state.parts.map(p=>`
+    <tr>
+      <td class="mono" style="color:var(--accent)">${escapeHtml(p.part_number)}</td>
+      <td>${escapeHtml(p.description||'')}</td>
+      <td class="num">${fmtMoney(p.unit_cost)}</td>
+      <td class="dim mono">${escapeHtml(p.unit_of_measure||'EA')}</td>
+      <td class="dim">${escapeHtml(p.supplier||'')}</td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-btn" data-edit-part="${p.id}">Edit</button>
+          <button class="icon-btn danger" data-del-part="${p.id}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  main.innerHTML = `
+    <div class="section-head">
+      <div><span class="section-title">Parts Library</span><span class="section-count">${state.parts.length} parts</span></div>
+      <button class="btn-add" id="add-part-btn">+ New Part</button>
+    </div>
+    ${state.parts.length === 0 ? `
+      <div class="empty"><b>No parts yet</b>Add your first part to start building BOMs.</div>
+    ` : `
+      <table>
+        <thead><tr><th>Part #</th><th>Description</th><th style="text-align:right">Unit Cost</th><th>UoM</th><th>Supplier</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `}
+  `;
+  document.getElementById('add-part-btn').addEventListener('click', ()=> setState({modal:{type:'part', editingId:null}}));
+  main.querySelectorAll('[data-edit-part]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const p = state.parts.find(x=>x.id===el.dataset.editPart);
+      setState({modal:{type:'part', editingId:p.id, data:p}});
+    });
+  });
+  main.querySelectorAll('[data-del-part]').forEach(el=>{
+    el.addEventListener('click', ()=> deletePart(el.dataset.delPart));
+  });
+}
+
+function renderVendors(main){
+  const rows = state.vendors.map(v=>`
+    <tr>
+      <td class="mono" style="color:var(--accent)">${escapeHtml(v.vendor_code||'')}</td>
+      <td style="font-weight:600;">${escapeHtml(v.name)}</td>
+      <td class="dim">${escapeHtml(v.contact_info||'')}</td>
+      <td class="dim">${escapeHtml(v.notes||'')}</td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-btn" data-edit-vendor="${v.id}">Edit</button>
+          <button class="icon-btn danger" data-del-vendor="${v.id}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  main.innerHTML = `
+    <div class="section-head">
+      <div><span class="section-title">Vendors</span><span class="section-count">${state.vendors.length} vendors</span></div>
+      <button class="btn-add" id="add-vendor-btn">+ New Vendor</button>
+    </div>
+    ${state.vendors.length === 0 ? `
+      <div class="empty"><b>No vendors yet</b>Add a vendor, or import BOM data that references one.</div>
+    ` : `
+      <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Contact Info</th><th>Notes</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `}
+  `;
+  document.getElementById('add-vendor-btn').addEventListener('click', ()=> setState({modal:{type:'vendor', editingId:null}}));
+  main.querySelectorAll('[data-edit-vendor]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const v = state.vendors.find(x=>x.id===el.dataset.editVendor);
+      setState({modal:{type:'vendor', editingId:v.id, data:v}});
+    });
+  });
+  main.querySelectorAll('[data-del-vendor]').forEach(el=>{
+    el.addEventListener('click', ()=> deleteVendor(el.dataset.delVendor));
+  });
+}
+
+function renderBomsList(main){
+  const cards = state.boms.map(b=>`
+    <div class="bom-card" data-open-bom="${b.id}">
+      <div>
+        <div class="bom-name">${escapeHtml(b.name)}</div>
+        <div class="bom-meta">${escapeHtml(b.product_number||'—')} &middot; REV ${escapeHtml(b.revision)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="status-pill status-${b.status}">${b.status}</span>
+        <button class="icon-btn danger" data-del-bom="${b.id}">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  main.innerHTML = `
+    <div class="section-head">
+      <div><span class="section-title">Bills of Material</span><span class="section-count">${state.boms.length}</span></div>
+      <button class="btn-add" id="add-bom-btn">+ New BOM</button>
+    </div>
+    ${state.boms.length === 0 ? `
+      <div class="empty"><b>No BOMs yet</b>Create a BOM to start listing parts for a product.</div>
+    ` : cards}
+  `;
+  document.getElementById('add-bom-btn').addEventListener('click', ()=> setState({modal:{type:'bom', editingId:null}}));
+  main.querySelectorAll('[data-open-bom]').forEach(el=>{
+    el.addEventListener('click', ()=> openBom(el.dataset.openBom));
+  });
+  main.querySelectorAll('[data-del-bom]').forEach(el=>{
+    el.addEventListener('click', (e)=> deleteBom(el.dataset.delBom, e));
+  });
+}
+
+function renderBomDetail(main){
+  const bom = state.boms.find(b=>b.id === state.activeBomId);
+  if(!bom){ setState({view:'boms'}); return; }
+  const byParent = buildTree(state.bomItems);
+  const roots = byParent['root'] || [];
+  const grandTotal = roots.reduce((s,r)=> s + lineExtended(r, byParent), 0);
+
+  function renderRows(items, depth){
+    return items.map(item=>{
+      const kids = byParent[item.id] || [];
+      const hasKids = kids.length > 0;
+      const isOpen = !!state.expanded[item.id];
+      const ext = lineExtended(item, byParent);
+      const freeNotes = (item.parts?.notes || '').trim();
+      const infoShown = !!state.notesOpen[item.id];
+      const info = state.lineVendorInfo[item.id];
+      let infoPanel = '';
+      if(infoShown){
+        if(!info){
+          infoPanel = `<div class="notes-row" style="padding-left:${12 + depth*22 + 24}px;">Loading…</div>`;
+        } else {
+          const vLines = info.vendors.map(v=>`${escapeHtml(v.vendors?.name||'?')}${v.vendors?.vendor_code ? ' (#'+escapeHtml(v.vendors.vendor_code)+')' : ''}${v.vendor_part_number ? ' — pn: '+escapeHtml(v.vendor_part_number) : ''}`);
+          const mLines = info.manufacturers.map(m=>`${escapeHtml(m.manufacturers?.name||'?')}${m.mfg_part_number ? ' — pn: '+escapeHtml(m.mfg_part_number) : ''}`);
+          const sLines = info.substitutes.map(s=>`${escapeHtml(s.substitute_part_number)}${s.description ? ' — '+escapeHtml(s.description) : ''}`);
+          const hasAny = vLines.length || mLines.length || sLines.length || freeNotes;
+          infoPanel = `<div class="notes-row" style="padding-left:${12 + depth*22 + 24}px;">
+            ${vLines.length ? `<div><b>Vendors:</b> ${vLines.join('; ')}</div>` : ''}
+            ${mLines.length ? `<div><b>Manufacturers:</b> ${mLines.join('; ')}</div>` : ''}
+            ${sLines.length ? `<div><b>Substitutes:</b> ${sLines.join('; ')}</div>` : ''}
+            ${freeNotes ? `<div><b>Notes:</b> ${escapeHtml(freeNotes)}</div>` : ''}
+            ${!hasAny ? `<div class="faint">No vendor, manufacturer, or note info on file for this part.</div>` : ''}
+          </div>`;
+        }
+      }
+      let html = `
+        <div class="tree-row" style="padding-left:${12 + depth*22}px;">
+          <div class="tree-toggle ${hasKids ? '' : 'leaf'}" data-toggle="${item.id}">${isOpen ? '▾' : '▸'}</div>
+          <div class="tree-pn">${escapeHtml(item.parts?.part_number||'?')}</div>
+          <div class="tree-desc">${escapeHtml(item.parts?.description||'')}</div>
+          <div class="tree-ref">${escapeHtml(item.reference_designator||'')}</div>
+          <button class="vendor-toggle" data-vendor-toggle="${item.id}" data-part-id="${item.part_id}" title="Vendor / manufacturer info">${infoShown ? 'Hide info' : 'Vendor info'}</button>
+          <div class="tree-qty">Qty <b>${item.quantity}</b></div>
+          <div class="tree-cost">${fmtMoney(ext)}</div>
+          <div class="tree-actions">
+            <button class="icon-btn" data-add-child="${item.id}" title="Add sub-item">+ Sub</button>
+            <button class="icon-btn" data-edit-line="${item.id}">Edit</button>
+            <button class="icon-btn danger" data-del-line="${item.id}">Del</button>
+          </div>
+        </div>
+        ${infoPanel}
+      `;
+      if(hasKids && isOpen){
+        html += renderRows(kids, depth+1);
+      }
+      return html;
+    }).join('');
+  }
+
+  main.innerHTML = `
+    <div class="back-link" id="back-to-boms">← All BOMs</div>
+    <div class="bom-header">
+      <div>
+        <div class="bom-title">${escapeHtml(bom.name)}</div>
+        <div class="bom-sub">${escapeHtml(bom.product_number||'—')} &middot; REV ${escapeHtml(bom.revision)} &middot; <span class="status-pill status-${bom.status}" style="margin-left:4px;">${bom.status}</span></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-outline" id="edit-bom-btn">Edit BOM Info</button>
+        <button class="btn-add" id="add-root-line-btn">+ Add Part</button>
+      </div>
+    </div>
+    <div class="totals">
+      <div class="total-item"><div class="t-label">Line items</div><div class="t-value">${state.bomItems.length}</div></div>
+      <div class="total-item"><div class="t-label">Extended cost</div><div class="t-value">${fmtMoney(grandTotal)}</div></div>
+    </div>
+    <div class="tree-wrap">
+      <div class="tree-header">
+        <span class="th-pn">Part #</span>
+        <span class="th-desc">Description</span>
+        <span class="th-ref">Ref</span>
+        <span class="th-vendor">Vendor</span>
+        <span class="th-qty">Qty</span>
+        <span class="th-cost">Ext. Cost</span>
+        <span class="th-actions"></span>
+      </div>
+      ${roots.length === 0 ? `<div class="empty" style="border:none;">Add the first part to this BOM.</div>` : renderRows(roots, 0)}
+      <div class="add-line-btn" id="add-root-line-btn-2">+ add top-level part…</div>
+    </div>
+  `;
+
+  document.getElementById('back-to-boms').addEventListener('click', ()=> setState({view:'boms', activeBomId:null}));
+  document.getElementById('edit-bom-btn').addEventListener('click', ()=> setState({modal:{type:'bom', editingId:bom.id, data:bom}}));
+  const openLineModal = (parentId)=> setState({modal:{type:'line', editingId:null, data:{parent_item_id: parentId}}});
+  document.getElementById('add-root-line-btn').addEventListener('click', ()=> openLineModal(null));
+  document.getElementById('add-root-line-btn-2').addEventListener('click', ()=> openLineModal(null));
+
+  main.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.toggle;
+      setState({expanded: {...state.expanded, [id]: !state.expanded[id]}});
+    });
+  });
+  main.querySelectorAll('[data-vendor-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.vendorToggle;
+      const partId = el.dataset.partId;
+      const opening = !state.notesOpen[id];
+      setState({notesOpen: {...state.notesOpen, [id]: opening}});
+      if(opening && !state.lineVendorInfo[id]){
+        loadPartVendorInfo(id, partId);
+      }
+    });
+  });
+  main.querySelectorAll('[data-add-child]').forEach(el=>{
+    el.addEventListener('click', ()=> openLineModal(el.dataset.addChild));
+  });
+  main.querySelectorAll('[data-edit-line]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const item = state.bomItems.find(x=>x.id===el.dataset.editLine);
+      setState({modal:{type:'line', editingId:item.id, data:item}});
+    });
+  });
+  main.querySelectorAll('[data-del-line]').forEach(el=>{
+    el.addEventListener('click', ()=> deleteLine(el.dataset.delLine));
+  });
+}
+
+function renderModal(){
+  const m = state.modal;
+  let inner = '';
+
+  if(m.type === 'part'){
+    const d = m.data || {};
+    inner = `
+      <div class="modal-title">${m.editingId ? 'Edit Part' : 'New Part'}</div>
+      <form id="modal-form">
+        <label>Part Number</label>
+        <input type="text" name="part_number" value="${escapeAttr(d.part_number)}" required />
+        <label>Description</label>
+        <input type="text" name="description" value="${escapeAttr(d.description)}" />
+        <div class="field-row">
+          <div><label>Unit Cost</label><input type="number" step="0.0001" name="unit_cost" value="${escapeAttr(d.unit_cost ?? '0')}" /></div>
+          <div><label>Unit of Measure</label><input type="text" name="unit_of_measure" value="${escapeAttr(d.unit_of_measure || 'EA')}" /></div>
+        </div>
+        <label>Supplier</label>
+        <input type="text" name="supplier" value="${escapeAttr(d.supplier)}" />
+        <label>Notes</label>
+        <textarea name="notes" rows="2">${escapeHtml(d.notes||'')}</textarea>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save Part</button>
+        </div>
+      </form>
+    `;
+  } else if(m.type === 'bom'){
+    const d = m.data || {};
+    inner = `
+      <div class="modal-title">${m.editingId ? 'Edit BOM' : 'New BOM'}</div>
+      <form id="modal-form">
+        <label>BOM Name</label>
+        <input type="text" name="name" value="${escapeAttr(d.name)}" required placeholder="e.g. Widget X Assembly" />
+        <div class="field-row">
+          <div><label>Product Number</label><input type="text" name="product_number" value="${escapeAttr(d.product_number)}" /></div>
+          <div><label>Revision</label><input type="text" name="revision" value="${escapeAttr(d.revision || 'A')}" /></div>
+        </div>
+        <label>Status</label>
+        <select name="status">
+          <option value="draft" ${d.status==='draft'?'selected':''}>Draft</option>
+          <option value="released" ${d.status==='released'?'selected':''}>Released</option>
+          <option value="obsolete" ${d.status==='obsolete'?'selected':''}>Obsolete</option>
+        </select>
+        <label>Notes</label>
+        <textarea name="notes" rows="2">${escapeHtml(d.notes||'')}</textarea>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save BOM</button>
+        </div>
+      </form>
+    `;
+  } else if(m.type === 'line'){
+    const d = m.data || {};
+    const partOptions = state.parts.map(p=>`<option value="${p.id}" ${d.part_id===p.id?'selected':''}>${escapeHtml(p.part_number)} — ${escapeHtml(p.description||'')}</option>`).join('');
+    inner = `
+      <div class="modal-title">${m.editingId ? 'Edit Line Item' : (d.parent_item_id ? 'Add Sub-Item' : 'Add Part to BOM')}</div>
+      <form id="modal-form">
+        <label>Part</label>
+        <select name="part_id" required>
+          <option value="">Select a part…</option>
+          ${partOptions}
+        </select>
+        ${state.parts.length===0 ? `<div class="auth-note" style="margin-top:8px;">No parts in your library yet — add one in the Parts Library tab first.</div>` : ''}
+        <div class="field-row">
+          <div><label>Quantity</label><input type="number" step="0.0001" name="quantity" value="${escapeAttr(d.quantity ?? '1')}" required /></div>
+          <div><label>Ref Designator</label><input type="text" name="reference_designator" value="${escapeAttr(d.reference_designator)}" placeholder="optional" /></div>
+        </div>
+        <label>Notes</label>
+        <textarea name="notes" rows="2">${escapeHtml(d.notes||'')}</textarea>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save Line</button>
+        </div>
+      </form>
+    `;
+  } else if(m.type === 'vendor'){
+    const d = m.data || {};
+    inner = `
+      <div class="modal-title">${m.editingId ? 'Edit Vendor' : 'New Vendor'}</div>
+      <form id="modal-form">
+        <label>Vendor Code</label>
+        <input type="text" name="vendor_code" value="${escapeAttr(d.vendor_code)}" placeholder="e.g. 5122" />
+        <label>Vendor Name</label>
+        <input type="text" name="name" value="${escapeAttr(d.name)}" required />
+        <label>Contact Info</label>
+        <input type="text" name="contact_info" value="${escapeAttr(d.contact_info)}" placeholder="phone, email, address…" />
+        <label>Notes</label>
+        <textarea name="notes" rows="2">${escapeHtml(d.notes||'')}</textarea>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save Vendor</button>
+        </div>
+      </form>
+    `;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `<div class="modal">${inner}</div>`;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('mousedown', (e)=>{ if(e.target === overlay) setState({modal:null}); });
+  document.getElementById('modal-cancel').addEventListener('click', ()=> setState({modal:null}));
+  document.getElementById('modal-form').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const data = Object.fromEntries(fd.entries());
+    if(m.type === 'part') savePart(data, m.editingId);
+    else if(m.type === 'bom') saveBom(data, m.editingId);
+    else if(m.type === 'line'){ data.parent_item_id = m.data?.parent_item_id || null; saveLine(data, m.editingId); }
+    else if(m.type === 'vendor') saveVendor(data, m.editingId);
+  });
+}
+
+function escapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+render();
+</script>
+</body>
+</html>
